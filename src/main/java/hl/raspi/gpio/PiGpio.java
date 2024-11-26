@@ -11,14 +11,12 @@ import com.pi4j.io.gpio.digital.DigitalState;
 
 public class PiGpio{
 	
-	public static DigitalOutput createGpioOutput(int aPinNum)
-	{
-		Context pi4j = Pi4J.newAutoContext();
-		
-		DigitalOutputConfigBuilder ledConfig = DigitalOutput.newConfigBuilder(pi4j)
+	public static DigitalOutput createGpioOutput(Context aPiContext, int aPinNum)
+	{	
+		DigitalOutputConfigBuilder ledConfig = DigitalOutput.newConfigBuilder(aPiContext)
                 .address(aPinNum);
 		
-		return pi4j.create(ledConfig);
+		return aPiContext.create(ledConfig);
 	}
 	
 	public static void printState(DigitalOutput aOutput)
@@ -31,9 +29,11 @@ public class PiGpio{
 	public static void main(String args[]) throws InterruptedException
 	{
 		
-		DigitalOutput led_red 		= createGpioOutput(16);
-		DigitalOutput led_yellow 	= createGpioOutput(20);
-		DigitalOutput led_green 	= createGpioOutput(21);
+		Context pi4j = Pi4J.newAutoContext();
+		
+		DigitalOutput led_red 		= createGpioOutput(pi4j, 16);
+		DigitalOutput led_yellow 	= createGpioOutput(pi4j, 20);
+		DigitalOutput led_green 	= createGpioOutput(pi4j, 21);
 		
 
 		led_red.off();
@@ -41,8 +41,8 @@ public class PiGpio{
 		led_green.off();
 		
 		led_red.on();
-		Future<?> f1 = led_yellow.blinkAsync(500, TimeUnit.MILLISECONDS);
 		led_green.on();
+		Future<?> f1 = led_yellow.blinkAsync(500, TimeUnit.MILLISECONDS);
 		
 		printState(led_red);
 		printState(led_yellow);
@@ -54,6 +54,8 @@ public class PiGpio{
 		led_red.off();
 		led_yellow.off();
 		led_green.off();
+		
+		pi4j.shutdown();
 		
 	}
 }
